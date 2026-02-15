@@ -16,6 +16,7 @@ import { Report } from './reports/reports.entity';
       type: 'sqlite', // file based database
       database: 'db.sqlite', // path to the database file
       entities: [User, Report],
+
       synchronize: true,
     }),
   ],
