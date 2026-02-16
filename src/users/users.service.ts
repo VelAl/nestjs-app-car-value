@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
@@ -8,13 +8,41 @@ import { CreateUserDto } from './users.dtos/create-user.dto';
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private repo: Repository<User>,
+    private usersRepo: Repository<User>,
   ) {}
 
-  async create(userDto: CreateUserDto) {
-    const user = this.repo.create(userDto);
-    const savedUser = await this.repo.save(user);
+  create(userDto: CreateUserDto) {
+    const user = this.usersRepo.create(userDto);
+    return this.usersRepo.save(user);
+  }
 
-    return savedUser;
+  getUserById(id: User['id']) {
+    return this.usersRepo.findOneBy({ id });
+  }
+
+  getUsersByEmail(email: User['email']) {
+    return this.usersRepo.find({ where: { email } });
+  }
+
+  async update(id: User['id'], attrs: Partial<Omit<User, 'id'>>) {
+    const user = await this.getUserById(id);
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found.`);
+    }
+
+    Object.assign(user, attrs);
+
+    return this.usersRepo.save(user); // method "save" triggers the @AfterUpdate hook
+  }
+
+  async remove(id: User['id']) {
+    const user = await this.getUserById(id);
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found.`);
+    }
+
+    return this.usersRepo.remove(user); // method "remove" triggers the @AfterRemove hook
   }
 }
