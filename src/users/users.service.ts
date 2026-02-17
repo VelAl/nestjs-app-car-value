@@ -16,8 +16,13 @@ export class UsersService {
     return this.usersRepo.save(user);
   }
 
-  getUserById(id: User['id']) {
-    return this.usersRepo.findOneBy({ id });
+  async getUserById(id: User['id']) {
+    const user = await this.usersRepo.findOneBy({ id });
+    if (!user) {
+      throw new NotFoundException(`User with ID "${id}" not found.`);
+    }
+
+    return user;
   }
 
   getUsersByEmail(email: User['email']) {
