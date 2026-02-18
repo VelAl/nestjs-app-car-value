@@ -8,11 +8,10 @@ import {
   Delete,
   Query,
   ParseIntPipe,
-  UseInterceptors,
 } from '@nestjs/common';
 import { CreateUserDto, SanitizedUserDto, UpdateUserDto } from './users.dtos';
 import { UsersService } from './users.service';
-import { SerializeInterceptor } from 'src/interceptors';
+import { Serialize } from 'src/interceptors';
 
 @Controller('users')
 export class UsersController {
@@ -30,7 +29,7 @@ export class UsersController {
     return this.usersService.getUsersByEmail(email);
   }
 
-  @UseInterceptors(new SerializeInterceptor(SanitizedUserDto))
+  @Serialize(SanitizedUserDto)
   @Get(':id')
   getUserById(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.getUserById(id);
