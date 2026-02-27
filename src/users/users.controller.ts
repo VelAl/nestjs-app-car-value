@@ -12,16 +12,21 @@ import {
 import { CreateUserDto, SanitizedUserDto, UpdateUserDto } from './users.dtos';
 import { UsersService } from './users.service';
 import { Serialize } from 'src/interceptors';
+import { UsersAuthService } from './users.auth.service';
 
 @Controller('users')
+@Serialize(SanitizedUserDto)
 export class UsersController {
-  constructor(private usersService: UsersService) {}
+  constructor(
+    private usersService: UsersService,
+    private usersAuthService: UsersAuthService,
+  ) {}
 
   @Post('signup')
   async createUser(@Body() body: CreateUserDto) {
-    const user = await this.usersService.create(body);
+    const user = await this.usersAuthService.signUp(body);
 
-    return user.id;
+    return user;
   }
 
   @Get('email')
@@ -29,7 +34,6 @@ export class UsersController {
     return this.usersService.getUsersByEmail(email);
   }
 
-  @Serialize(SanitizedUserDto)
   @Get(':id')
   getUserById(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.getUserById(id);
