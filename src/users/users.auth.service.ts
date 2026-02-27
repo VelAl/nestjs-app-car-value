@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './users.dtos';
-import { getHashedPassword } from 'src/utils';
+import { getHashedPassword, isPasswordMatching } from 'src/utils';
 
 @Injectable()
 export class UsersAuthService {
@@ -9,8 +9,8 @@ export class UsersAuthService {
 
   async signUp({ email, password }: CreateUserDto) {
     // check if email is already in use______
-    const alreadyExists = await this.usersService.getUsersByEmail(email);
-    if (alreadyExists.length) {
+    const alreadyExists = await this.usersService.getUserByEmail(email);
+    if (alreadyExists) {
       throw new BadRequestException('Email is already in use.');
     }
 
@@ -25,5 +25,17 @@ export class UsersAuthService {
     return user;
   }
 
-  async signIn() {}
+  async signIn(email: string, password: string) {
+    const user = await this.usersService.getUserByEmail(email);
+    if (!user) {
+      throw new BadRequestException('Invalid credentials.');
+    }
+
+    const isPasswordValid = await isPasswordMatching(password, user.password);
+    if (!isPasswordValid) {
+      throw new BadRequestException('Invalid credentials.');
+    }
+
+    return user;
+  }
 }

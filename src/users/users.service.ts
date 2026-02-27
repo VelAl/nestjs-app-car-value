@@ -25,8 +25,8 @@ export class UsersService {
     return user;
   }
 
-  getUsersByEmail(email: User['email']) {
-    return this.usersRepo.find({ where: { email } });
+  getUserByEmail(email: User['email']) {
+    return this.usersRepo.findOne({ where: { email } });
   }
 
   async update(id: User['id'], attrs: UpdateUserDto) {

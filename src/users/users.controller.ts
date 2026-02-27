@@ -29,9 +29,14 @@ export class UsersController {
     return user;
   }
 
+  @Post('signin')
+  async signInUser(@Body() body: CreateUserDto) {
+    return this.usersAuthService.signIn(body.email, body.password);
+  }
+
   @Get('email')
-  getUsersByEmail(@Query('email') email: string) {
-    return this.usersService.getUsersByEmail(email);
+  getUserByEmail(@Query('email') email: string) {
+    return this.usersService.getUserByEmail(email);
   }
 
   @Get(':id')
