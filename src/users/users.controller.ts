@@ -8,6 +8,8 @@ import {
   Delete,
   Query,
   ParseIntPipe,
+  Session,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CreateUserDto, SanitizedUserDto, UpdateUserDto } from './users.dtos';
 import { UsersService } from './users.service';
@@ -23,15 +25,33 @@ export class UsersController {
   ) {}
 
   @Post('signup')
-  async createUser(@Body() body: CreateUserDto) {
+  async createUser(
+    @Body() body: CreateUserDto,
+    @Session() session: { userId?: number },
+  ) {
     const user = await this.usersAuthService.signUp(body);
+
+    session.userId = user.id;
 
     return user;
   }
 
   @Post('signin')
-  async signInUser(@Body() body: CreateUserDto) {
+  async signInUser(
+    @Body() body: CreateUserDto,
+    @Session() session: { userId?: number },
+  ) {
+    const user = await this.usersAuthService.signIn(body.email, body.password);
+    session.userId = user.id;
+
     return this.usersAuthService.signIn(body.email, body.password);
+  }
+
+  @Post('signout')
+  signOutUser(@Session() session: { userId?: number }) {
+    session.userId = undefined;
+
+    return { message: 'User has been logged out.' };
   }
 
   @Get('email')
@@ -40,7 +60,16 @@ export class UsersController {
   }
 
   @Get(':id')
-  getUserById(@Param('id', ParseIntPipe) id: number) {
+  getUserById(
+    @Param('id', ParseIntPipe) id: number,
+    @Session() session: { userId: number },
+  ) {
+    if (session.userId !== id) {
+      throw new UnauthorizedException(
+        'You are not authorized to access this resource.',
+      );
+    }
+
     return this.usersService.getUserById(id);
   }
 
