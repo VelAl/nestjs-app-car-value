@@ -10,14 +10,19 @@ import {
   ParseIntPipe,
   Session,
   UnauthorizedException,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CreateUserDto, SanitizedUserDto, UpdateUserDto } from './users.dtos';
 import { UsersService } from './users.service';
 import { Serialize } from 'src/interceptors';
 import { UsersAuthService } from './users.auth.service';
+import { CurrentUser } from './decorators';
+import { type SessionUser } from 'src/app.types';
+import { User } from './user.entity';
+import { CurrentUserInterceptor } from './interceptors';
 
 @Controller('users')
-@Serialize(SanitizedUserDto)
+@UseInterceptors(CurrentUserInterceptor)
 export class UsersController {
   constructor(
     private usersService: UsersService,
@@ -25,9 +30,10 @@ export class UsersController {
   ) {}
 
   @Post('signup')
+  @Serialize(SanitizedUserDto)
   async createUser(
     @Body() body: CreateUserDto,
-    @Session() session: { userId?: number },
+    @Session() session: SessionUser,
   ) {
     const user = await this.usersAuthService.signUp(body);
 
@@ -37,9 +43,10 @@ export class UsersController {
   }
 
   @Post('signin')
+  @Serialize(SanitizedUserDto)
   async signInUser(
     @Body() body: CreateUserDto,
-    @Session() session: { userId?: number },
+    @Session() session: SessionUser,
   ) {
     const user = await this.usersAuthService.signIn(body.email, body.password);
     session.userId = user.id;
@@ -48,37 +55,46 @@ export class UsersController {
   }
 
   @Post('signout')
-  signOutUser(@Session() session: { userId?: number }) {
+  signOutUser(@Session() session: SessionUser) {
     session.userId = undefined;
 
     return { message: 'User has been logged out.' };
   }
 
   @Get('email')
-  getUserByEmail(@Query('email') email: string) {
+  @Serialize(SanitizedUserDto)
+  getUserByEmail(
+    @Query('email') email: string,
+    @CurrentUser() currentUser: User,
+  ) {
+    if (!currentUser) {
+      throw new UnauthorizedException();
+    }
+
     return this.usersService.getUserByEmail(email);
   }
 
   @Get(':id')
+  @Serialize(SanitizedUserDto)
   getUserById(
     @Param('id', ParseIntPipe) id: number,
-    @Session() session: { userId: number },
+    @CurrentUser() currentUser: User,
   ) {
-    if (session.userId !== id) {
-      throw new UnauthorizedException(
-        'You are not authorized to access this resource.',
-      );
+    if (currentUser.id !== id) {
+      throw new UnauthorizedException();
     }
 
     return this.usersService.getUserById(id);
   }
 
   @Delete(':id')
+  @Serialize(SanitizedUserDto)
   async deleteUser(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.remove(id);
   }
 
   @Patch(':id')
+  @Serialize(SanitizedUserDto)
   async updateUser(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: UpdateUserDto,
