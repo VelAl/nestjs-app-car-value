@@ -9,8 +9,8 @@ import {
   Query,
   ParseIntPipe,
   Session,
-  UnauthorizedException,
-  UseInterceptors,
+  UseGuards,
+  ForbiddenException,
 } from '@nestjs/common';
 import { CreateUserDto, SanitizedUserDto, UpdateUserDto } from './users.dtos';
 import { UsersService } from './users.service';
@@ -19,10 +19,9 @@ import { UsersAuthService } from './users.auth.service';
 import { CurrentUser } from './decorators';
 import { type SessionUser } from 'src/app.types';
 import { User } from './user.entity';
-import { CurrentUserInterceptor } from './interceptors';
+import { AuthGuard } from 'src/guards';
 
 @Controller('users')
-@UseInterceptors(CurrentUserInterceptor)
 export class UsersController {
   constructor(
     private usersService: UsersService,
@@ -63,25 +62,20 @@ export class UsersController {
 
   @Get('email')
   @Serialize(SanitizedUserDto)
-  getUserByEmail(
-    @Query('email') email: string,
-    @CurrentUser() currentUser: User,
-  ) {
-    if (!currentUser) {
-      throw new UnauthorizedException();
-    }
-
+  @UseGuards(AuthGuard)
+  getUserByEmail(@Query('email') email: string) {
     return this.usersService.getUserByEmail(email);
   }
 
   @Get(':id')
   @Serialize(SanitizedUserDto)
+  @UseGuards(AuthGuard)
   getUserById(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() currentUser: User,
   ) {
     if (currentUser.id !== id) {
-      throw new UnauthorizedException();
+      throw new ForbiddenException();
     }
 
     return this.usersService.getUserById(id);
@@ -89,12 +83,14 @@ export class UsersController {
 
   @Delete(':id')
   @Serialize(SanitizedUserDto)
+  @UseGuards(AuthGuard)
   async deleteUser(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.remove(id);
   }
 
   @Patch(':id')
   @Serialize(SanitizedUserDto)
+  @UseGuards(AuthGuard)
   async updateUser(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: UpdateUserDto,
