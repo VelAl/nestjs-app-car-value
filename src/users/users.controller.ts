@@ -8,39 +8,89 @@ import {
   Delete,
   Query,
   ParseIntPipe,
+  Session,
+  UseGuards,
+  ForbiddenException,
 } from '@nestjs/common';
 import { CreateUserDto, SanitizedUserDto, UpdateUserDto } from './users.dtos';
 import { UsersService } from './users.service';
 import { Serialize } from 'src/interceptors';
+import { UsersAuthService } from './users.auth.service';
+import { CurrentUser } from './decorators';
+import { type SessionUser } from 'src/app.types';
+import { User } from './user.entity';
+import { AuthGuard } from 'src/guards';
 
 @Controller('users')
 export class UsersController {
-  constructor(private usersService: UsersService) {}
+  constructor(
+    private usersService: UsersService,
+    private usersAuthService: UsersAuthService,
+  ) {}
 
   @Post('signup')
-  async createUser(@Body() body: CreateUserDto) {
-    const user = await this.usersService.create(body);
+  @Serialize(SanitizedUserDto)
+  async createUser(
+    @Body() body: CreateUserDto,
+    @Session() session: SessionUser,
+  ) {
+    const user = await this.usersAuthService.signUp(body);
 
-    return user.id;
+    session.userId = user.id;
+
+    return user;
+  }
+
+  @Post('signin')
+  @Serialize(SanitizedUserDto)
+  async signInUser(
+    @Body() body: CreateUserDto,
+    @Session() session: SessionUser,
+  ) {
+    const user = await this.usersAuthService.signIn(body.email, body.password);
+    session.userId = user.id;
+
+    return this.usersAuthService.signIn(body.email, body.password);
+  }
+
+  @Post('signout')
+  signOutUser(@Session() session: SessionUser) {
+    session.userId = undefined;
+
+    return { message: 'User has been logged out.' };
   }
 
   @Get('email')
-  getUsersByEmail(@Query('email') email: string) {
-    return this.usersService.getUsersByEmail(email);
+  @Serialize(SanitizedUserDto)
+  @UseGuards(AuthGuard)
+  getUserByEmail(@Query('email') email: string) {
+    return this.usersService.getUserByEmail(email);
   }
 
-  @Serialize(SanitizedUserDto)
   @Get(':id')
-  getUserById(@Param('id', ParseIntPipe) id: number) {
+  @Serialize(SanitizedUserDto)
+  @UseGuards(AuthGuard)
+  getUserById(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() currentUser: User,
+  ) {
+    if (currentUser.id !== id) {
+      throw new ForbiddenException();
+    }
+
     return this.usersService.getUserById(id);
   }
 
   @Delete(':id')
+  @Serialize(SanitizedUserDto)
+  @UseGuards(AuthGuard)
   async deleteUser(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.remove(id);
   }
 
   @Patch(':id')
+  @Serialize(SanitizedUserDto)
+  @UseGuards(AuthGuard)
   async updateUser(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: UpdateUserDto,

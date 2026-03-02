@@ -17,6 +17,10 @@ export class UsersService {
   }
 
   async getUserById(id: User['id']) {
+    if (!id) {
+      return null;
+    }
+
     const user = await this.usersRepo.findOneBy({ id });
     if (!user) {
       throw new NotFoundException(`User with ID "${id}" not found.`);
@@ -25,8 +29,8 @@ export class UsersService {
     return user;
   }
 
-  getUsersByEmail(email: User['email']) {
-    return this.usersRepo.find({ where: { email } });
+  getUserByEmail(email: User['email']) {
+    return this.usersRepo.findOne({ where: { email } });
   }
 
   async update(id: User['id'], attrs: UpdateUserDto) {
