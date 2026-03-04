@@ -13,9 +13,8 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { CreateUserDto, SanitizedUserDto, UpdateUserDto } from './users.dtos';
-import { UsersService } from './users.service';
+import { UsersService, AuthService } from './services';
 import { Serialize } from 'src/interceptors';
-import { UsersAuthService } from './users.auth.service';
 import { CurrentUser } from './decorators';
 import { type SessionUser } from 'src/app.types';
 import { User } from './user.entity';
@@ -25,7 +24,7 @@ import { AuthGuard } from 'src/guards';
 export class UsersController {
   constructor(
     private usersService: UsersService,
-    private usersAuthService: UsersAuthService,
+    private usersAuthService: AuthService,
   ) {}
 
   @Post('signup')

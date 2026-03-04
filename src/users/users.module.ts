@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
 import { UsersController } from './users.controller';
-import { UsersService } from './users.service';
+import { UsersService, AuthService } from './services';
 import { User } from './user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersAuthService } from './users.auth.service';
 import { CurrentUserInterceptor } from './interceptors';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 
@@ -11,7 +10,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
   controllers: [UsersController],
   providers: [
     UsersService,
-    UsersAuthService,
+    AuthService,
     {
       // globally applied interceptor for all routes
       provide: APP_INTERCEPTOR,

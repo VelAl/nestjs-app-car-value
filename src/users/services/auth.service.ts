@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './users.dtos';
-import { getHashedPassword, isPasswordMatching } from 'src/utils';
+import { CreateUserDto } from '../users.dtos';
+import { getHashedPassword, isPasswordMatching } from '../../utils';
 
 @Injectable()
-export class UsersAuthService {
+export class AuthService {
   constructor(private usersService: UsersService) {}
 
   async signUp({ email, password }: CreateUserDto) {
