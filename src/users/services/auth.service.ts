@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from '../users.dtos';
-import { getHashedPassword, isPasswordMatching } from '../../utils';
+import { getHashedPassword, isPasswordMatching } from 'src/utils';
 
 @Injectable()
 export class AuthService {
