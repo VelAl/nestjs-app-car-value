@@ -13,9 +13,8 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { CreateUserDto, SanitizedUserDto, UpdateUserDto } from './users.dtos';
-import { UsersService } from './users.service';
+import { UsersService, AuthService } from './services';
 import { Serialize } from 'src/interceptors';
-import { UsersAuthService } from './users.auth.service';
 import { CurrentUser } from './decorators';
 import { type SessionUser } from 'src/app.types';
 import { User } from './user.entity';
@@ -25,7 +24,7 @@ import { AuthGuard } from 'src/guards';
 export class UsersController {
   constructor(
     private usersService: UsersService,
-    private usersAuthService: UsersAuthService,
+    private authService: AuthService,
   ) {}
 
   @Post('signup')
@@ -34,7 +33,7 @@ export class UsersController {
     @Body() body: CreateUserDto,
     @Session() session: SessionUser,
   ) {
-    const user = await this.usersAuthService.signUp(body);
+    const user = await this.authService.signUp(body);
 
     session.userId = user.id;
 
@@ -47,10 +46,10 @@ export class UsersController {
     @Body() body: CreateUserDto,
     @Session() session: SessionUser,
   ) {
-    const user = await this.usersAuthService.signIn(body.email, body.password);
+    const user = await this.authService.signIn(body.email, body.password);
     session.userId = user.id;
 
-    return this.usersAuthService.signIn(body.email, body.password);
+    return this.authService.signIn(body.email, body.password);
   }
 
   @Post('signout')
