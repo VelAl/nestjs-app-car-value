@@ -3,7 +3,7 @@ import { UsersController } from './users.controller';
 import { UsersService, AuthService } from './services';
 import { User } from './user.entity';
 import { ForbiddenException } from '@nestjs/common';
-import type { SessionUser } from 'src/app.types';
+import type { SessionUser } from '../app.types';
 
 describe('UsersController', () => {
   let controller: UsersController;

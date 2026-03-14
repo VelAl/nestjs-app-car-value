@@ -3,7 +3,7 @@ import {
   ExecutionContext,
   UnauthorizedException,
 } from '@nestjs/common';
-import { AppRequest } from 'src/app.types';
+import { AppRequest } from '../app.types';
 
 export class AuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {

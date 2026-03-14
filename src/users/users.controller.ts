@@ -14,11 +14,11 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto, SanitizedUserDto, UpdateUserDto } from './users.dtos';
 import { UsersService, AuthService } from './services';
-import { Serialize } from 'src/interceptors';
+import { Serialize } from '../interceptors';
 import { CurrentUser } from './decorators';
-import { type SessionUser } from 'src/app.types';
+import { type SessionUser } from '../app.types';
 import { User } from './user.entity';
-import { AuthGuard } from 'src/guards';
+import { AuthGuard } from '../guards';
 
 @Controller('users')
 export class UsersController {
