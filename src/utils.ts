@@ -1,5 +1,6 @@
 import { randomBytes, scrypt as _scrypt } from 'crypto';
 import { promisify } from 'util';
+import { SanitizedUserDto } from './users/users.dtos';
 
 const scrypt = promisify(_scrypt);
 
@@ -20,3 +21,14 @@ export const isPasswordMatching = async (
 
   return storedHash === hash.toString('hex');
 };
+
+export function isSanitizedUserDto(value: unknown): value is SanitizedUserDto {
+  if (!value || typeof value !== 'object') return false;
+
+  return (
+    'id' in value &&
+    typeof value.id === 'number' &&
+    'email' in value &&
+    typeof value.email === 'string'
+  );
+}
