@@ -21,7 +21,6 @@ describe('Authentication E2E', () => {
     const email = 'test_1@test.com';
     return request(app.getHttpServer())
       .post('/users/signup')
-
       .send({ email, password: 'test' })
       .expect(201)
       .then((res) => {
