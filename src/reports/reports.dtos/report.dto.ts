@@ -6,6 +6,9 @@ export class ReportDto {
   id: number;
 
   @Expose()
+  approved: boolean;
+
+  @Expose()
   price: number;
 
   @Expose()
@@ -26,9 +29,6 @@ export class ReportDto {
   @Expose()
   mileage: number;
 
-  @Transform(({ obj }: TransformFnParams) => {
-    return (obj as Report).user.id;
-  })
   @Expose()
   userId: number;
 }
