@@ -10,3 +10,8 @@ export interface AppRequest extends Request {
   session?: SessionUser;
   currentUser?: User;
 }
+
+export enum UserRole {
+  ADMIN = 'admin',
+  USER = 'user',
+}

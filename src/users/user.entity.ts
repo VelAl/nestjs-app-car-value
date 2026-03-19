@@ -1,3 +1,4 @@
+import { UserRole } from 'src/app.types';
 import { Report } from 'src/reports/reports.entity';
 import {
   AfterInsert,
@@ -19,6 +20,9 @@ export class User {
 
   @Column()
   password: string;
+
+  @Column({ default: UserRole.USER })
+  role: UserRole;
 
   @OneToMany(() => Report, (report) => report.user)
   reports: Report[];
