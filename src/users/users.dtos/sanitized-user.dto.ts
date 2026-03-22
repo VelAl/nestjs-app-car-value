@@ -1,4 +1,5 @@
 import { Expose } from 'class-transformer';
+import { UserRole } from 'src/app.types';
 
 export class SanitizedUserDto {
   @Expose()
@@ -6,4 +7,7 @@ export class SanitizedUserDto {
 
   @Expose()
   email: string;
+
+  @Expose()
+  role: UserRole;
 }

@@ -19,6 +19,7 @@ import { CurrentUser } from './decorators';
 import { type SessionUser } from '../app.types';
 import { User } from './user.entity';
 import { AuthGuard } from '../guards';
+import { isAdmin } from 'src/utils';
 
 @Controller('users')
 export class UsersController {
@@ -73,7 +74,7 @@ export class UsersController {
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() currentUser: User,
   ) {
-    if (currentUser.id !== id) {
+    if (currentUser.id !== id && !isAdmin(currentUser)) {
       throw new ForbiddenException();
     }
 
@@ -83,7 +84,14 @@ export class UsersController {
   @Delete(':id')
   @Serialize(SanitizedUserDto)
   @UseGuards(AuthGuard)
-  async deleteUser(@Param('id', ParseIntPipe) id: number) {
+  async deleteUser(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() currentUser: User,
+  ) {
+    if (currentUser.id !== id && !isAdmin(currentUser)) {
+      throw new ForbiddenException();
+    }
+
     return this.usersService.remove(id);
   }
 

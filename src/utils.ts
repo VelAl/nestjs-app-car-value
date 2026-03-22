@@ -1,6 +1,8 @@
 import { randomBytes, scrypt as _scrypt } from 'crypto';
 import { promisify } from 'util';
 import { SanitizedUserDto } from './users/users.dtos';
+import { User } from './users/user.entity';
+import { UserRole } from './app.types';
 
 const scrypt = promisify(_scrypt);
 
@@ -32,3 +34,5 @@ export function isSanitizedUserDto(value: unknown): value is SanitizedUserDto {
     typeof value.email === 'string'
   );
 }
+
+export const isAdmin = (user: User) => user.role === UserRole.ADMIN;
