@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { ReportsService } from './reports.service';
 import { CreateReportDto, ReportDto, ApproveReportDto } from './reports.dtos';
-import { AuthGuard } from 'src/guards';
+import { AdminGuard, AuthGuard } from 'src/guards';
 import { User } from 'src/users/user.entity';
 import { CurrentUser } from 'src/users/decorators/current-user.decorator';
 import { Serialize } from 'src/interceptors';
@@ -26,7 +26,7 @@ export class ReportsController {
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard)
+  @UseGuards(AdminGuard)
   approveReport(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: ApproveReportDto,
