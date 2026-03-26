@@ -6,9 +6,16 @@ import {
   Patch,
   Param,
   ParseIntPipe,
+  Query,
+  Get,
 } from '@nestjs/common';
 import { ReportsService } from './reports.service';
-import { CreateReportDto, ReportDto, ApproveReportDto } from './reports.dtos';
+import {
+  CreateReportDto,
+  ReportDto,
+  ApproveReportDto,
+  GetEstimateDto,
+} from './reports.dtos';
 import { AdminGuard, AuthGuard } from 'src/guards';
 import { User } from 'src/users/user.entity';
 import { CurrentUser } from 'src/users/decorators/current-user.decorator';
@@ -32,5 +39,10 @@ export class ReportsController {
     @Body() body: ApproveReportDto,
   ) {
     return this.reportsService.approveReport(id, body);
+  }
+
+  @Get('estimate')
+  getEstimate(@Query() query: GetEstimateDto) {
+    return this.reportsService.getEstimate(query);
   }
 }
