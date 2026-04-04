@@ -21,7 +21,7 @@ export class User {
   @Column()
   password: string;
 
-  @Column({ default: UserRole.USER })
+  @Column({ type: 'text', default: UserRole.USER })
   role: UserRole;
 
   @OneToMany(() => Report, (report) => report.user)
