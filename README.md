@@ -2,7 +2,10 @@
 
 A RESTful API that estimates used car prices based on crowd-sourced reports. Users submit sale prices for vehicles they own; the system averages approved reports with similar make, model, year, mileage, and location to produce an estimate for any queried car.
 
-Built as a hands-on NestJS learning project covering auth, guards, interceptors, TypeORM, and E2E testing.
+## About this project
+
+Hands-on course project from [NestJS: The Complete Developer's Guide](https://www.udemy.com/course/nestjs-the-complete-developers-guide/) (Stephen Grider), covering auth, guards, interceptors, TypeORM, and E2E testing.  
+[Certificate of completion](https://ude.my/UC-a75dccd8-5a9c-44d1-b16e-447c71736535)
 
 ---
 
